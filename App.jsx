@@ -5,6 +5,7 @@ import { SearchNormal, CloseCircle } from 'iconsax-react-native';
 
 const { width } = Dimensions.get('window');
 
+//data
 const guitars = [
     { id: '1', brand: 'Fender', model: 'Stratocaster', description: 'Gitar klasik dengan suara khas.', image: require('./src/assets/img/guitar1.jpg') },
     { id: '2', brand: 'Gibson', model: 'Les Paul', description: 'Gitar dengan sustain yang luar biasa.', image: require('./src/assets/img/guitar2.jpg') },

@@ -1,3 +1,4 @@
+//colors
 const fontType = {
     'Pjs-ExtraLight' : 'PlusJakartaSans-ExtraLight',
     'Pjs-Light' : 'PlusJakartaSans-Light',
