@@ -1,123 +1,112 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, FlatList, Modal, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Modal, Image, TouchableOpacity, StyleSheet, TextInput, FlatList, ScrollView } from 'react-native';
 import { colors, fontType } from './src/theme';
-import { SearchNormal, CloseCircle } from 'iconsax-react-native';
-
-const { width } = Dimensions.get('window');
-
-//data
-const guitars = [
-    { id: '1', brand: 'Fender', model: 'Stratocaster', description: 'Gitar klasik dengan suara khas.', image: require('./src/assets/img/guitar1.jpg') },
-    { id: '2', brand: 'Gibson', model: 'Les Paul', description: 'Gitar dengan sustain yang luar biasa.', image: require('./src/assets/img/guitar2.jpg') },
-    { id: '3', brand: 'Ibanez', model: 'RG Series', description: 'Gitar dengan neck yang cepat.', image: require('./src/assets/img/guitar3.png') },
-    { id: '4', brand: 'PRS', model: 'Custom 24', description: 'Gitar dengan tone yang seimbang.', image: require('./src/assets/img/guitar4.jpg') },
-];
+import { ListHorizontal } from './src/components';
+import guitars from './src/data';
+import { SearchNormal } from 'iconsax-react-native';
 
 const App = () => {
-    const [search, setSearch] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
     const [selectedGuitar, setSelectedGuitar] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [search, setSearch] = useState('');
+    const [selectedBrand, setSelectedBrand] = useState(null);
 
     const openModal = (guitar) => {
         setSelectedGuitar(guitar);
         setModalVisible(true);
     };
 
+    const brands = [...new Set(guitars.map(guitar => guitar.brand))];
+
+    const filteredGuitars = guitars.filter(guitar => 
+        (selectedBrand ? guitar.brand === selectedBrand : true) &&
+        (guitar.brand.toLowerCase().includes(search.toLowerCase()) ||
+        guitar.model.toLowerCase().includes(search.toLowerCase()))
+    );
+
     return (
         <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.title}>Guitarify</Text>
-            </View>
+    <View style={styles.header}>
+        <Text style={styles.title}>Guitarify</Text>
+    </View>
 
-            {/* Guitar List in Horizontal ScrollView */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-                {guitars.map((item) => (
-                    <TouchableOpacity key={item.id} style={styles.guitarCard} onPress={() => openModal(item)}>
-                        <Image source={item.image} style={styles.guitarImage} />
-                        <Text style={styles.guitarText}>{item.brand} - {item.model}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+    <ListHorizontal guitars={guitars} onSelect={openModal} />
 
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <SearchNormal size="20" color={colors.grey(0.7)} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Cari gitar..."
-                    placeholderTextColor={colors.grey(0.6)}
-                    value={search}
-                    onChangeText={setSearch}
-                />
-            </View>
+    {/* Search Bar */}
+    <View style={styles.searchContainer}>
+        <SearchNormal size="20" color={colors.grey(0.7)} />
+        <TextInput
+            style={styles.searchInput}
+            placeholder="Cari gitar..."
+            placeholderTextColor={colors.grey(0.6)}
+            value={search}
+            onChangeText={setSearch}
+        />
+    </View>
 
-            {/* Guitar List */}
-            <FlatList
-                data={guitars.filter(guitar =>
-                    guitar.brand.toLowerCase().includes(search.toLowerCase()) ||
-                    guitar.model.toLowerCase().includes(search.toLowerCase())
-                )}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContainer}
-                renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.card} onPress={() => openModal(item)}>
-                        <Image source={item.image} style={styles.image} />
-                        <View style={styles.cardTextContainer}>
-                            <Text style={styles.cardTitle}>{item.brand} - {item.model}</Text>
-                            <Text style={styles.cardDescription}>{item.description}</Text>
-                        </View>
-                    </TouchableOpacity>
-                )}
-            />
-
-            {/* Modal */}
-            {selectedGuitar && (
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => setModalVisible(false)}>
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <Image source={selectedGuitar.image} style={styles.modalImage} />
-                            <Text style={styles.modalText}>{selectedGuitar.brand} - {selectedGuitar.model}</Text>
-                            <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
-                                <CloseCircle size="24" color={colors.white()} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
+    {/* Filter Buttons */}
+    <View style={styles.filterContainer}>
+        <FlatList
+            horizontal
+            data={['All', ...brands]}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+                <TouchableOpacity
+                    style={[styles.filterButton, selectedBrand === item ? styles.selectedFilter : {}]}
+                    onPress={() => setSelectedBrand(item === 'All' ? null : item)}
+                >
+                    <Text style={styles.filterText}>{item}</Text>
+                </TouchableOpacity>
             )}
-        </View>
+        />
+    </View>
+
+    {/* Guitar List */}
+    <FlatList
+        data={filteredGuitars}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={{ flex: 1 }}
+        ListEmptyComponent={
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ textAlign: 'center', marginTop: 20 }}>Tidak ada gitar ditemukan.</Text>
+            </View>
+        }
+        renderItem={({ item }) => (
+            <TouchableOpacity style={styles.card} onPress={() => openModal(item)}>
+                <Image source={item.image} style={styles.image} />
+                <View style={styles.cardTextContainer}>
+                    <Text style={styles.cardTitle}>{item.brand} - {item.model}</Text>
+                    <Text style={styles.cardDescription}>{item.description}</Text>
+                </View>
+            </TouchableOpacity>
+        )}
+        keyboardShouldPersistTaps="handled"
+    />
+</View>
+
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.white(), padding: 10 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: colors.grey(), borderRadius: 10, marginBottom: 10 },
-    title: { fontSize: 24, fontFamily: fontType['Pjs-Bold'], color: colors.white(), marginLeft: 10 },
-    
-    scrollContainer: { paddingVertical: 10 },
-    guitarCard: { alignItems: 'center', marginRight: 15 },
-    guitarImage: { width: 120, height: 120, borderRadius: 10 },
-    guitarText: { fontSize: 14, fontFamily: fontType['Pjs-Medium'], color: colors.black(), marginTop: 5 },
+    title: { fontSize: 24, fontFamily: fontType['Pjs-Bold'], color: colors.white(), textAlign: 'center' },
 
     searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.grey(0.2), padding: 10, borderRadius: 8, marginBottom: 10 },
     searchInput: { flex: 1, fontSize: 16, fontFamily: fontType['Pjs-Regular'], color: colors.black(), marginLeft: 8 },
-
+    
+    filterContainer: { flexDirection: 'row', marginBottom: 10 },
+    filterButton: { backgroundColor: colors.grey(0.3), paddingVertical: 8, paddingHorizontal: 15, borderRadius: 20, marginRight: 10 },
+    activeFilter: { backgroundColor: colors.grey(0.6) },
+    filterText: { fontSize: 14, fontFamily: fontType['Pjs-Medium'], color: colors.black() },
+    
     listContainer: { paddingBottom: 20 },
     card: { flexDirection: 'row', backgroundColor: colors.grey(0.3), marginVertical: 8, padding: 15, borderRadius: 12, alignItems: 'center' },
     image: { width: 80, height: 80, borderRadius: 5, marginRight: 15 },
     cardTextContainer: { flex: 1 },
     cardTitle: { fontSize: 16, fontFamily: fontType['Pjs-Medium'], color: colors.black() },
     cardDescription: { fontSize: 14, fontFamily: fontType['Pjs-Regular'], color: colors.grey(0.7) },
-
-    modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
-    modalContent: { backgroundColor: colors.white(), padding: 20, borderRadius: 10, alignItems: 'center', width: '80%' },
-    modalImage: { width: 150, height: 300, borderRadius: 10, marginBottom: 10 },
-    modalText: { fontSize: 18, fontFamily: fontType['Pjs-Bold'], color: colors.black(), marginBottom: 10 },
-    modalButton: { marginTop: 10, backgroundColor: colors.grey(), padding: 10, borderRadius: 50, alignItems: 'center' },
 });
 
 export default App;
