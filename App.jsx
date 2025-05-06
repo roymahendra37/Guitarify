@@ -1,17 +1,9 @@
-// import * as React from 'react';
-// import {Home} from './src/screens';
-// export default function App() {
-//   return <Home />;
-// }
+// App.jsx
+import React from 'react';
+import Router from './src/navigation/Router';
 
-import * as React from 'react';
-import {Profile} from './src/screens';
-export default function App() {
-  return <Profile />;
-}
+const App = () => {
+  return <Router />;
+};
 
-// import * as React from 'react';
-// import {Whislist} from './src/screens';
-// export default function App() {
-//   return <Whislist />;
-// }
+export default App;

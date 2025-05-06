@@ -52,10 +52,6 @@
     {
       "path": "src/assets/fonts/PlusJakartaSans-SemiBold.ttf",
       "sha1": "4de9dd8582c316692e5bd76586a3f8824c92dbd0"
-    },
-    {
-      "path": "src/assets/fonts/PlusJakartaSans-SemiBoldItalic.ttf",
-      "sha1": "62bfc01cc3f69ad300b9ecec2616b2a0a4cf0cf5"
     }
   ]
 }

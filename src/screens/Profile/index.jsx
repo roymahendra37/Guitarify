@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, fontType } from '../../theme';
+import { useNavigation } from '@react-navigation/native'; // << Tambahan
 
 const Profile = () => {
+  const navigation = useNavigation(); // << Tambahan
+
   const user = {
     name: 'HendraChrist',
     email: 'hendrachrist@gmail.com',
@@ -11,11 +14,11 @@ const Profile = () => {
 
   return (
     <View style={styles.container}>
-        <View style={styles.header}>
-            <Text style={styles.title}>Guitarify</Text>
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.title}>Guitarify</Text>
+      </View>
 
-        <Text style={styles.title2}>My Profile</Text>
+      <Text style={styles.title2}>My Profile</Text>
 
       <View style={styles.profileContainer}>
         <Image source={user.avatar} style={styles.avatar} />
@@ -25,6 +28,14 @@ const Profile = () => {
 
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Edit Profil</Text>
+      </TouchableOpacity>
+
+      {/* Tombol Tambah Gitar */}
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: colors.grey() }]}
+        onPress={() => navigation.navigate('AddGuitar')} // << Navigate ke AddGuitar
+      >
+        <Text style={styles.buttonText}>Tambah Gitar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -39,10 +50,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-
-header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: colors.grey(), borderRadius: 10, marginBottom: 10 },
-title: { fontSize: 24, fontFamily: fontType['Pjs-Bold'], color: colors.white(), textAlign: 'center' },
-
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: colors.grey(), borderRadius: 10, marginBottom: 10 },
+  title: { fontSize: 24, fontFamily: fontType['Pjs-Bold'], color: colors.white(), textAlign: 'center' },
   profileContainer: {
     alignItems: 'center',
     marginVertical: 30,

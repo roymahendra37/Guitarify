@@ -1,4 +1,5 @@
 import Home from "./Home";
 import Profile from "./Profile";
 import Whislist from "./Whislist";
-export {Home, Profile, Whislist}
+import AddGuitar from "./AddGuitar";
+export {Home, Profile, Whislist, AddGuitar}
