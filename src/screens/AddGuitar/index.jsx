@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import { colors, fontType } from '../../theme';
 
 const AddGuitar = () => {
@@ -9,11 +18,51 @@ const AddGuitar = () => {
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
 
+  const API_URL = 'https://682c10a3d29df7a95be557a4.mockapi.io/api/guitars';
+
+  const handleSave = async () => {
+    if (!name || !brand || !model || !description || !image) {
+      Alert.alert('Error', 'Semua data harus diisi.');
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          brand,
+          model,
+          description,
+          image,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        Alert.alert('Berhasil', 'Data gitar berhasil ditambahkan!');
+        // Reset form
+        setName('');
+        setBrand('');
+        setModel('');
+        setDescription('');
+        setImage('');
+      } else {
+        Alert.alert('Gagal', 'Terjadi kesalahan saat menyimpan data.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Gagal terhubung ke server.');
+      console.error(error);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Tambah Data Gitar</Text>
 
-      {/* Input untuk Nama Gitar */}
       <TextInput
         placeholder="Nama Gitar"
         placeholderTextColor={colors.grey(0.6)}
@@ -22,7 +71,6 @@ const AddGuitar = () => {
         style={styles.input}
       />
 
-      {/* Input untuk Merek Gitar */}
       <TextInput
         placeholder="Merek Gitar"
         placeholderTextColor={colors.grey(0.6)}
@@ -31,7 +79,6 @@ const AddGuitar = () => {
         style={styles.input}
       />
 
-      {/* Input untuk Model Gitar */}
       <TextInput
         placeholder="Model Gitar"
         placeholderTextColor={colors.grey(0.6)}
@@ -40,7 +87,6 @@ const AddGuitar = () => {
         style={styles.input}
       />
 
-      {/* Input untuk Deskripsi Gitar */}
       <TextInput
         placeholder="Deskripsi Gitar"
         placeholderTextColor={colors.grey(0.6)}
@@ -49,7 +95,6 @@ const AddGuitar = () => {
         style={styles.input}
       />
 
-      {/* Input untuk URL Gambar Gitar */}
       <TextInput
         placeholder="URL Gambar Gitar"
         placeholderTextColor={colors.grey(0.6)}
@@ -58,7 +103,6 @@ const AddGuitar = () => {
         style={styles.input}
       />
 
-      {/* Tampilkan Gambar Gitar jika URL diisi */}
       {image ? (
         <Image
           source={{ uri: image }}
@@ -66,7 +110,7 @@ const AddGuitar = () => {
         />
       ) : null}
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
         <Text style={styles.buttonText}>Simpan</Text>
       </TouchableOpacity>
     </ScrollView>

@@ -31,12 +31,12 @@ const Profile = () => {
       </TouchableOpacity>
 
       {/* Tombol Tambah Gitar */}
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.grey() }]}
-        onPress={() => navigation.navigate('AddGuitar')} // << Navigate ke AddGuitar
-      >
-        <Text style={styles.buttonText}>Tambah Gitar</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={[styles.button, { backgroundColor: colors.grey() }]}
+      onPress={() => navigation.navigate('AddGuitar')}
+    >
+      <Text style={styles.buttonText}>Tambah Gitar</Text>
+    </TouchableOpacity>
     </View>
   );
 };

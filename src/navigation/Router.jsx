@@ -51,12 +51,16 @@ const BottomTabs = () => {
     return (
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Main">
-          <Stack.Screen name="AddGuitar" component={AddGuitar} />
-          
           <Stack.Screen
             name="Main"
             component={BottomTabs}
             options={{ headerShown: false }}
+          />
+          
+          <Stack.Screen
+            name="AddGuitar"
+            component={AddGuitar}
+            options={{ title: 'Tambah Gitar' }} // Judul header
           />
         </Stack.Navigator>
       </NavigationContainer>
