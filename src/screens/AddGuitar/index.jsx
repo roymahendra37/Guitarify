@@ -11,12 +11,37 @@ import {
 } from 'react-native';
 import { colors, fontType } from '../../theme';
 import firestore from '@react-native-firebase/firestore';
+import notifee from '@notifee/react-native';
+import { useEffect } from 'react';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 const AddGuitar = ({ navigation }) => {
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
+
+  // Fungsi untuk menampilkan notifikasi
+  const displayNotification = async () => {
+    // Membuat channel untuk Android (wajib)
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+    });
+
+    // Menampilkan notifikasi
+    await notifee.displayNotification({
+      title: 'Sukses!',
+      body: 'Data gitar berhasil ditambahkan.',
+      android: {
+        channelId,
+        smallIcon: 'ic_launcher', // pastikan ada icon ini di project Android kamu
+        pressAction: {
+          id: 'default',
+        },
+      },
+    });
+  };
 
   const handleSave = async () => {
     if (!brand || !model || !description || !image) {
@@ -33,6 +58,9 @@ const AddGuitar = ({ navigation }) => {
         createdAt: firestore.FieldValue.serverTimestamp(),
       });
 
+      // Tampilkan notifikasi sukses
+      await displayNotification();
+
       Alert.alert('Berhasil', 'Data gitar berhasil ditambahkan!', [
         {
           text: 'OK',
@@ -44,6 +72,16 @@ const AddGuitar = ({ navigation }) => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    const requestPermission = async () => {
+      if (Platform.OS === 'android') {
+        await notifee.requestPermission();
+      }
+    };
+    requestPermission();
+  }, []);
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
