@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "893656361664",
+    "project_id": "guitarify-1c815",
+    "storage_bucket": "guitarify-1c815.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:893656361664:android:21d3dd31325610e5aa5b25",
+        "android_client_info": {
+          "package_name": "com.guitarify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPuhBqmwFQ1x5RNzazXRC3HgKdF3L1oqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

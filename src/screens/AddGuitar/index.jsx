@@ -10,51 +10,37 @@ import {
   Alert,
 } from 'react-native';
 import { colors, fontType } from '../../theme';
+import firestore from '@react-native-firebase/firestore';
 
-const AddGuitar = () => {
-  const [name, setName] = useState('');
+const AddGuitar = ({ navigation }) => {
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
 
-  const API_URL = 'https://682c10a3d29df7a95be557a4.mockapi.io/api/guitars';
-
   const handleSave = async () => {
-    if (!name || !brand || !model || !description || !image) {
+    if (!brand || !model || !description || !image) {
       Alert.alert('Error', 'Semua data harus diisi.');
       return;
     }
 
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          brand,
-          model,
-          description,
-          image,
-        }),
+      await firestore().collection('guitars').add({
+        brand,
+        model,
+        description,
+        image,
+        createdAt: firestore.FieldValue.serverTimestamp(),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        Alert.alert('Berhasil', 'Data gitar berhasil ditambahkan!');
-        // Reset form
-        setName('');
-        setBrand('');
-        setModel('');
-        setDescription('');
-        setImage('');
-      } else {
-        Alert.alert('Gagal', 'Terjadi kesalahan saat menyimpan data.');
-      }
+      Alert.alert('Berhasil', 'Data gitar berhasil ditambahkan!', [
+        {
+          text: 'OK',
+          onPress: () => navigation.navigate('Main', { screen: 'Profile' }),
+        },
+      ]);
     } catch (error) {
-      Alert.alert('Error', 'Gagal terhubung ke server.');
+      Alert.alert('Error', 'Gagal menyimpan data ke Firebase.');
       console.error(error);
     }
   };
@@ -62,14 +48,6 @@ const AddGuitar = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Tambah Data Gitar</Text>
-
-      <TextInput
-        placeholder="Nama Gitar"
-        placeholderTextColor={colors.grey(0.6)}
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
 
       <TextInput
         placeholder="Merek Gitar"
@@ -93,6 +71,7 @@ const AddGuitar = () => {
         value={description}
         onChangeText={setDescription}
         style={styles.input}
+        multiline
       />
 
       <TextInput
@@ -157,6 +136,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 20,
   },
+  uploadButton: {
+    backgroundColor: colors.grey(0.4),
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 15,
+  }
 });
 
 export default AddGuitar;

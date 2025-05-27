@@ -1,10 +1,19 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { colors, fontType } from '../../theme';
-import { useNavigation } from '@react-navigation/native'; // << Tambahan
+import { useNavigation } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
 
 const Profile = () => {
-  const navigation = useNavigation(); // << Tambahan
+  const navigation = useNavigation();
 
   const user = {
     name: 'HendraChrist',
@@ -12,8 +21,27 @@ const Profile = () => {
     avatar: require('../../assets/img/profile.png'),
   };
 
+  const [guitars, setGuitars] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('guitars')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot => {
+        const list = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setGuitars(list);
+        setLoading(false);
+      });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Guitarify</Text>
       </View>
@@ -30,19 +58,53 @@ const Profile = () => {
         <Text style={styles.buttonText}>Edit Profil</Text>
       </TouchableOpacity>
 
-      {/* Tombol Tambah Gitar */}
-    <TouchableOpacity
-      style={[styles.button, { backgroundColor: colors.grey() }]}
-      onPress={() => navigation.navigate('AddGuitar')}
-    >
-      <Text style={styles.buttonText}>Tambah Gitar</Text>
-    </TouchableOpacity>
-    </View>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: colors.grey() }]}
+        onPress={() => navigation.navigate('AddGuitar')}
+      >
+        <Text style={styles.buttonText}>Tambah Gitar</Text>
+      </TouchableOpacity>
+
+      <Text style={[styles.title2, { marginTop: 30 }]}>Daftar Gitar Saya</Text>
+
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.primary} />
+      ) : guitars.length === 0 ? (
+        <Text style={{ textAlign: 'center', marginTop: 10 }}>
+          Belum ada data gitar.
+        </Text>
+      ) : (
+        guitars.map(item => (
+          <View key={item.id} style={styles.card}>
+            <Image source={{ uri: item.image }} style={styles.guitarImage} />
+            <View style={styles.guitarInfo}>
+              <Text style={styles.guitarBrand}>{item.brand}</Text>
+              <Text style={styles.guitarModel}>{item.model}</Text>
+              <Text style={styles.guitarDesc}>{item.description}</Text>
+            </View>
+          </View>
+        ))
+      )}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.white(), padding: 10 },
+  container: { padding: 10, backgroundColor: colors.white() },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: colors.grey(),
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: fontType['Pjs-Bold'],
+    color: colors.white(),
+    textAlign: 'center',
+  },
   title2: {
     fontSize: 24,
     fontFamily: fontType['Pjs-Bold'],
@@ -50,8 +112,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: colors.grey(), borderRadius: 10, marginBottom: 10 },
-  title: { fontSize: 24, fontFamily: fontType['Pjs-Bold'], color: colors.white(), textAlign: 'center' },
   profileContainer: {
     alignItems: 'center',
     marginVertical: 30,
@@ -85,6 +145,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: fontType['Pjs-Medium'],
     color: colors.white(),
+  },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: colors.grey(0.1),
+    marginVertical: 8,
+    borderRadius: 10,
+    overflow: 'hidden',
+    padding: 10,
+  },
+  guitarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  guitarInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  guitarBrand: {
+    fontSize: 18,
+    fontFamily: fontType['Pjs-Bold'],
+    color: colors.black(),
+  },
+  guitarModel: {
+    fontSize: 16,
+    fontFamily: fontType['Pjs-Medium'],
+    color: colors.grey(0.8),
+  },
+  guitarDesc: {
+    fontSize: 14,
+    fontFamily: fontType['Pjs-Regular'],
+    color: colors.grey(0.7),
+    marginTop: 4,
   },
 });
 
